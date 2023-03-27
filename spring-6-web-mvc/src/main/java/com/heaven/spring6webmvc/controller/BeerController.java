@@ -34,7 +34,7 @@ public class BeerController {
 
     @GetMapping
     public List<Beer> listBeers(){
-        return beerService.listBeer();
+        return beerService.listBeers();
     }
 
     @GetMapping("/{beerId}")
