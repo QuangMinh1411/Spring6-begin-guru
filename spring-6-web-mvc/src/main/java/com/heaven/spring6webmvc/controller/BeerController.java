@@ -1,5 +1,6 @@
 package com.heaven.spring6webmvc.controller;
 
+import com.heaven.spring6webmvc.exception.NotFoundException;
 import com.heaven.spring6webmvc.model.Beer;
 import com.heaven.spring6webmvc.services.BeerService;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,10 @@ public class BeerController {
     public static final String BEER_PATH = "/api/v1/beer";
     public static final String BEER_PATH_ID = BEER_PATH + "/{beerId}";
     private final BeerService beerService;
+
+
+
+
     @PutMapping(value = BEER_PATH_ID)
     public ResponseEntity<?> updateById(@PathVariable("beerId") UUID beerId,@RequestBody Beer beer){
         beerService.updateBeerById(beerId,beer);
@@ -43,7 +48,7 @@ public class BeerController {
     @GetMapping(value = BEER_PATH_ID)
     public Beer getBeerById(@PathVariable("beerId") UUID id){
         log.debug("Get Beer by ID - in controller change");
-        return beerService.getBeerById(id);
+        return beerService.getBeerById(id).orElseThrow(NotFoundException::new);
     }
 
 
