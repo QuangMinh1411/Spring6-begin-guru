@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,13 +37,28 @@ public class BeerServiceJPA implements BeerService {
     }
 
     @Override
-    public void updateBeerById(UUID beerId, BeerDTO beerDTO) {
+    public Optional<BeerDTO> updateBeerById(UUID beerId, BeerDTO beerDTO) {
+        AtomicReference<Optional<BeerDTO>> atomicReference = new AtomicReference<>();
+        beerRepository.findById(beerId).ifPresentOrElse(foundBeer->{
+            foundBeer.setBeerName(beerDTO.getBeerName());
+            foundBeer.setBeerStyle(beerDTO.getBeerStyle());
+            foundBeer.setUpc(beerDTO.getUpc());
+            foundBeer.setPrice(beerDTO.getPrice());
+            atomicReference.set(Optional.of(beerMapper.beerToBeerDto(beerRepository.save(foundBeer))));
 
+        },()->{
+            atomicReference.set(Optional.empty());
+        });
+        return atomicReference.get();
     }
 
     @Override
-    public void deleteById(UUID id) {
-
+    public Boolean deleteById(UUID id) {
+        if(beerRepository.existsById(id)){
+            beerRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
     @Override

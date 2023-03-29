@@ -2,6 +2,7 @@ package com.heaven.spring6webmvc.controller;
 
 import com.heaven.spring6webmvc.entities.Beer;
 import com.heaven.spring6webmvc.exception.NotFoundException;
+import com.heaven.spring6webmvc.mapper.BeerMapper;
 import com.heaven.spring6webmvc.model.BeerDTO;
 import com.heaven.spring6webmvc.repositories.BeerRepository;
 import jakarta.transaction.Transactional;
@@ -25,6 +26,8 @@ class BeerControllerIT {
     BeerController controller;
     @Autowired
     BeerRepository beerRepository;
+    @Autowired
+    BeerMapper beerMapper;
 
 
     @Test
@@ -70,5 +73,42 @@ class BeerControllerIT {
         beerRepository.deleteAll();
         List<BeerDTO> dtos = controller.listBeers();
         assertThat(dtos.size()).isEqualTo(0);
+    }
+    @Rollback
+    @Transactional
+    @Test
+    void updateExistingBeer(){
+        Beer beer = beerRepository.findAll().get(0);
+        BeerDTO beerDTO = beerMapper.beerToBeerDto(beer);
+        beerDTO.setId(null);
+        beerDTO.setVersion(null);
+        beerDTO.setBeerName("UPDATED");
+        ResponseEntity responseEntity = controller.updateById(beer.getId(),beerDTO);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
+        Beer updatedBeer = beerRepository.findById(beer.getId()).get();
+        assertThat(updatedBeer.getBeerName()).isEqualTo("UPDATED");
+    }
+
+    @Test
+    void testUpdateNotFound() {
+        assertThrows(NotFoundException.class,()->{
+           controller.updateById(UUID.randomUUID(),BeerDTO.builder().build());
+        });
+    }
+    @Rollback
+    @Transactional
+    @Test
+    void deleteByIdFound() {
+        Beer beer = beerRepository.findAll().get(0);
+        ResponseEntity responseEntity = controller.deleteById(beer.getId());
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
+        assertThat(beerRepository.findById(beer.getId()).isEmpty());
+
+    }
+    @Test
+    void deleteByIdNotFound() {
+        assertThrows(NotFoundException.class,()->{
+            controller.deleteById(UUID.randomUUID());
+        });
     }
 }
