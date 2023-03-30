@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class BeerController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
     @PostMapping(value = BEER_PATH)
-    public ResponseEntity<?> handlePost(@RequestBody BeerDTO beerDTO){
+    public ResponseEntity<?> handlePost(@Validated @RequestBody BeerDTO beerDTO){
         BeerDTO savedBeerDTO = beerService.saveNewBeer(beerDTO);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location","/api/v1/beer/"+ savedBeerDTO.getId().toString());

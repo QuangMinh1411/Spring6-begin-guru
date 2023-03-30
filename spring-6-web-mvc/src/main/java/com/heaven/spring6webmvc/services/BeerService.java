@@ -16,5 +16,5 @@ public interface BeerService {
 
     Boolean deleteById(UUID id);
 
-    void pathBeerById(UUID beerId, BeerDTO beerDTO);
+    Optional<BeerDTO> pathBeerById(UUID beerId, BeerDTO beerDTO);
 }

@@ -107,7 +107,7 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public void pathBeerById(UUID beerId, BeerDTO beerDTO) {
+    public Optional<BeerDTO> pathBeerById(UUID beerId, BeerDTO beerDTO) {
         BeerDTO existing = beerMap.get(beerId);
 
         if (StringUtils.hasText(beerDTO.getBeerName())){
@@ -129,5 +129,6 @@ public class BeerServiceImpl implements BeerService {
         if (StringUtils.hasText(beerDTO.getUpc())) {
             existing.setUpc(beerDTO.getUpc());
         }
+        return Optional.of(existing);
     }
 }
