@@ -1,7 +1,9 @@
 package com.heaven.spring6webmvc.services;
 
+import com.heaven.spring6webmvc.entities.Beer;
 import com.heaven.spring6webmvc.mapper.BeerMapper;
 import com.heaven.spring6webmvc.model.BeerDTO;
+import com.heaven.spring6webmvc.model.BeerStyle;
 import com.heaven.spring6webmvc.repositories.BeerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
@@ -21,9 +23,36 @@ public class BeerServiceJPA implements BeerService {
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
     @Override
-    public List<BeerDTO> listBeers() {
-        return beerRepository.findAll().stream()
+    public List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle,Boolean showInventory) {
+        List<Beer> beerList;
+        if(StringUtils.hasText(beerName) && beerStyle == null) {
+            beerList = listBeersByName(beerName);
+        } else if (!StringUtils.hasText(beerName) && beerStyle != null){
+            beerList = listBeersByStyle(beerStyle);
+        } else if (StringUtils.hasText(beerName) && beerStyle != null){
+            beerList = listBeersByNameAndStyle(beerName, beerStyle);
+        } else {
+            beerList = beerRepository.findAll();
+        }
+
+        if (showInventory != null && !showInventory) {
+            beerList.forEach(beer -> beer.setQuantityOnHand(null));
+        }
+
+        return beerList.stream()
                 .map(beerMapper::beerToBeerDto).collect(Collectors.toList());
+    }
+
+    private List<Beer> listBeersByNameAndStyle(String beerName, BeerStyle beerStyle) {
+        return beerRepository.findBeersByBeerNameIsLikeIgnoreCaseAndBeerStyle("%" + beerName + "%", beerStyle);
+    }
+
+    public List<Beer> listBeersByStyle(BeerStyle beerStyle) {
+        return beerRepository.findBeersByBeerStyle(beerStyle);
+    }
+
+    public List<Beer> listBeersByName(String beerName){
+        return beerRepository.findBeersByBeerNameIsLikeIgnoreCase("%" + beerName + "%");
     }
 
     @Override

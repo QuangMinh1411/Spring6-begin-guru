@@ -2,6 +2,7 @@ package com.heaven.spring6webmvc.controller;
 
 import com.heaven.spring6webmvc.exception.NotFoundException;
 import com.heaven.spring6webmvc.model.BeerDTO;
+import com.heaven.spring6webmvc.model.BeerStyle;
 import com.heaven.spring6webmvc.services.BeerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,8 +44,11 @@ public class BeerController {
     }
 
     @GetMapping(value = BEER_PATH)
-    public List<BeerDTO> listBeers(){
-        return beerService.listBeers();
+    public List<BeerDTO> listBeers(@RequestParam(value = "beerName",required = false) String beerName,
+                                   @RequestParam(value = "beerStyle",required = false) BeerStyle beerStyle,
+                                   @RequestParam(required = false) Boolean showInventory){
+
+        return beerService.listBeers(beerName,beerStyle,showInventory);
     }
 
     @GetMapping(value = BEER_PATH_ID)
